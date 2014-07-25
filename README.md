@@ -7,6 +7,10 @@ This is meant as a pull request to https://github.com/editorconfig/editorconfig-
 
 ![screenshot](https://raw.githubusercontent.com/madskristensen/EditorConfig/master/art/screenshot.png)
 
-This code should be Visual Studio 2010+ compatible. All you have to do 
+I can't compile your project, since I don't have VS 2010 installed.
+
+This code should be Visual Studio 2010+ compatible though. All you have to do 
 is to add the folders `Classify`, `Completion` and `ContentType` to 
 the .editorconfig VS extension project and then add the missing references.
+
+Sorry for such a lame pull request
