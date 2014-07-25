@@ -5,7 +5,6 @@ Gives syntax highlighting and Intellisense for .editorconfig files
 
 This is meant as a pull request to https://github.com/editorconfig/editorconfig-visualstudio  
 
---------------------------
 
 ## Screenshot:  
 
