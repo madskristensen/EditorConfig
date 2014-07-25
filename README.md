@@ -1,6 +1,8 @@
 EditorConfig for Visual Studio
 ============
 
+[![Build status](https://ci.appveyor.com/api/projects/status/27hvb1s209u0a7xp)](https://ci.appveyor.com/project/madskristensen/editorconfig)
+
 Gives syntax highlighting and Intellisense for .editorconfig files  
 
 This is meant as a pull request to https://github.com/editorconfig/editorconfig-visualstudio  
