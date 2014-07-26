@@ -53,19 +53,6 @@ namespace EditorConfig
             _glyph = glyph;
         }
 
-        private static Dictionary<string, List<string>> _dic = new Dictionary<string, List<string>>
-        {
-            {"root", new List<string>{"true"}},
-            {"indent_style", new List<string>{"tab", "space"}},
-            {"indent_size", new List<string> {"tab"} },
-            {"tab_width", new List<string>() },
-            {"end_of_line", new List<string>{"lf", "crlf", "cr"} },
-            {"charset", new List<string>{"latin1", "utf-8", "utf-1be", "utf-1le"} },
-            {"trim_trailing_whitespace", new List<string>{"true", "false"}},
-            {"insert_final_newline", new List<string>{"true", "false"}},
-            {"max_line_length", new List<string>()},
-        };
-
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
         {
             if (_disposed)

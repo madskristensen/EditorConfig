@@ -14,34 +14,36 @@ namespace EditorConfig
         private static Regex _rxIdentifier = new Regex(@"^\w+(?=\=?)", RegexOptions.Compiled);
         private static Regex _rxString = new Regex(@"\[([^\]]+)\]", RegexOptions.Compiled);
         private static Regex _rxComment = new Regex(@"#.*", RegexOptions.Compiled);
-        private Dictionary<Regex, IClassificationType> _map;
+        private static List<Tuple<Regex, IClassificationType>> _map;
 
         public EditorConfigClassifier(IClassificationTypeRegistryService registry)
         {
-            _map = new Dictionary<Regex, IClassificationType>
-            {
-                {_rxComment, registry.GetClassificationType(PredefinedClassificationTypeNames.Comment)},
-                {_rxString, registry.GetClassificationType(PredefinedClassificationTypeNames.String)},
-                {_rxIdentifier, registry.GetClassificationType(PredefinedClassificationTypeNames.SymbolDefinition)},
-                {_rxKeywords, registry.GetClassificationType(PredefinedClassificationTypeNames.Literal)},
-            };
+            if (_map == null)
+                _map = new List<Tuple<Regex, IClassificationType>>
+                {
+                    {Tuple.Create(_rxComment, registry.GetClassificationType(PredefinedClassificationTypeNames.Comment))},
+                    {Tuple.Create(_rxString, registry.GetClassificationType(PredefinedClassificationTypeNames.String))},
+                    {Tuple.Create(_rxIdentifier, registry.GetClassificationType(PredefinedClassificationTypeNames.SymbolDefinition))},
+                    {Tuple.Create(_rxKeywords, registry.GetClassificationType(PredefinedClassificationTypeNames.Literal))},
+                };
         }
 
         public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
             IList<ClassificationSpan> list = new List<ClassificationSpan>();
-            string text = span.GetText(); // the span is always a single line
+            ITextSnapshotLine line = span.Start.GetContainingLine();
+            string text = line.GetText();
 
-            foreach (Regex regex in _map.Keys)
-                foreach (Match match in regex.Matches(text))
+            foreach (var tuple in _map)
+                foreach (Match match in tuple.Item1.Matches(text))
                 {
-                    var str = new SnapshotSpan(span.Snapshot, span.Start.Position + match.Index, match.Length);
+                    var str = new SnapshotSpan(line.Snapshot, line.Start.Position + match.Index, match.Length);
 
                     // Make sure we don't double classify
                     if (list.Any(s => s.Span.IntersectsWith(str)))
                         continue;
 
-                    list.Add(new ClassificationSpan(str, _map[regex]));
+                    list.Add(new ClassificationSpan(str, tuple.Item2));
                 }
 
             return list;

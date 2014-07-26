@@ -96,7 +96,7 @@ namespace EditorConfig
                     {
                         case VSConstants.VSStd2KCmdID.TYPECHAR:
                             char ch = GetTypeChar(pvaIn);
-                            if (ch == ':')
+                            if (ch == '=' || ch == ' ')
                                 Cancel();
                             else if (!char.IsPunctuation(ch) && !char.IsControl(ch))
                                 StartSession();
