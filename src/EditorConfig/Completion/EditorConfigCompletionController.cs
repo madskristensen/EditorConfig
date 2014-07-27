@@ -1,42 +1,13 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Utilities;
 
 namespace EditorConfig
 {
-    #region Command Filter
-
-    [Export(typeof(IVsTextViewCreationListener))]
-    [ContentType(EditorConfigContentTypeDefinition.EditorConfigContentType)]
-    [TextViewRole(PredefinedTextViewRoles.Interactive)]
-    internal sealed class VsTextViewCreationListener : IVsTextViewCreationListener
-    {
-        [Import]
-        IVsEditorAdaptersFactoryService AdaptersFactory = null;
-
-        [Import]
-        ICompletionBroker CompletionBroker = null;
-
-        public void VsTextViewCreated(IVsTextView textViewAdapter)
-        {
-            IWpfTextView view = AdaptersFactory.GetWpfTextView(textViewAdapter);
-            
-            CommandFilter filter = new CommandFilter(view, CompletionBroker);
-
-            IOleCommandTarget next;
-            textViewAdapter.AddCommandFilter(filter, out next);
-            filter.Next = next;
-        }
-    }
-
     internal sealed class CommandFilter : IOleCommandTarget
     {
         private ICompletionSession _currentSession;
@@ -68,20 +39,20 @@ namespace EditorConfig
             {
                 switch ((VSConstants.VSStd2KCmdID)nCmdID)
                 {
-                    case VSConstants.VSStd2KCmdID.AUTOCOMPLETE:
-                    case VSConstants.VSStd2KCmdID.COMPLETEWORD:
-                    case VSConstants.VSStd2KCmdID.SHOWMEMBERLIST:
-                        handled = StartSession();
-                        break;
-                    case VSConstants.VSStd2KCmdID.RETURN:
-                        handled = Complete(false);
-                        break;
-                    case VSConstants.VSStd2KCmdID.TAB:
-                        handled = Complete(true);
-                        break;
-                    case VSConstants.VSStd2KCmdID.CANCEL:
-                        handled = Cancel();
-                        break;
+                case VSConstants.VSStd2KCmdID.AUTOCOMPLETE:
+                case VSConstants.VSStd2KCmdID.COMPLETEWORD:
+                case VSConstants.VSStd2KCmdID.SHOWMEMBERLIST:
+                    handled = StartSession();
+                    break;
+                case VSConstants.VSStd2KCmdID.RETURN:
+                    handled = Complete(false);
+                    break;
+                case VSConstants.VSStd2KCmdID.TAB:
+                    handled = Complete(true);
+                    break;
+                case VSConstants.VSStd2KCmdID.CANCEL:
+                    handled = Cancel();
+                    break;
                 }
             }
 
@@ -94,21 +65,21 @@ namespace EditorConfig
                 {
                     switch ((VSConstants.VSStd2KCmdID)nCmdID)
                     {
-                        case VSConstants.VSStd2KCmdID.TYPECHAR:
-                            char ch = GetTypeChar(pvaIn);
-                            if (ch == '=' || ch == ' ')
-                                Cancel();
-                            else if (!char.IsPunctuation(ch) && !char.IsControl(ch))
-                                StartSession();
-                            else if (_currentSession != null)
-                                Filter();
-                            break;
-                        case VSConstants.VSStd2KCmdID.BACKSPACE:
-                            if (_currentSession == null)
-                                StartSession();
-
+                    case VSConstants.VSStd2KCmdID.TYPECHAR:
+                        char ch = GetTypeChar(pvaIn);
+                        if (ch == '=' || ch == ' ')
+                            Cancel();
+                        else if (!char.IsPunctuation(ch) && !char.IsControl(ch))
+                            StartSession();
+                        else if (_currentSession != null)
                             Filter();
-                            break;
+                        break;
+                    case VSConstants.VSStd2KCmdID.BACKSPACE:
+                        if (_currentSession == null)
+                            StartSession();
+
+                        Filter();
+                        break;
                     }
                 }
             }
@@ -182,16 +153,14 @@ namespace EditorConfig
             {
                 switch ((VSConstants.VSStd2KCmdID)prgCmds[0].cmdID)
                 {
-                    case VSConstants.VSStd2KCmdID.AUTOCOMPLETE:
-                    case VSConstants.VSStd2KCmdID.COMPLETEWORD:
-                    case VSConstants.VSStd2KCmdID.SHOWMEMBERLIST:
-                        prgCmds[0].cmdf = (uint)OLECMDF.OLECMDF_ENABLED | (uint)OLECMDF.OLECMDF_SUPPORTED;
-                        return VSConstants.S_OK;
+                case VSConstants.VSStd2KCmdID.AUTOCOMPLETE:
+                case VSConstants.VSStd2KCmdID.COMPLETEWORD:
+                case VSConstants.VSStd2KCmdID.SHOWMEMBERLIST:
+                    prgCmds[0].cmdf = (uint)OLECMDF.OLECMDF_ENABLED | (uint)OLECMDF.OLECMDF_SUPPORTED;
+                    return VSConstants.S_OK;
                 }
             }
             return Next.QueryStatus(pguidCmdGroup, cCmds, prgCmds, pCmdText);
         }
     }
-
-    #endregion
 }
