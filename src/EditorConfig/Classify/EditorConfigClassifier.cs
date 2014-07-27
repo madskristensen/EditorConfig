@@ -11,7 +11,7 @@ namespace EditorConfig
     class EditorConfigClassifier : IClassifier
     {
         private static Regex _rxKeywords = new Regex(@"(?<=\=\s?)([a-zA-Z0-9-]+)\b", RegexOptions.Compiled);
-        private static Regex _rxIdentifier = new Regex(@"^\w+(?=\=?)", RegexOptions.Compiled);
+        private static Regex _rxIdentifier = new Regex(@"^([^=]+)\b(?=\=?)", RegexOptions.Compiled);
         private static Regex _rxString = new Regex(@"\[([^\]]+)\]", RegexOptions.Compiled);
         private static Regex _rxComment = new Regex(@"#.*", RegexOptions.Compiled);
         private static List<Tuple<Regex, IClassificationType>> _map;
